@@ -25,3 +25,5 @@ def generate_fake_contacts(num_contacts):
 
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
+
+channel.queue_declare(queue='contacts_queue')
