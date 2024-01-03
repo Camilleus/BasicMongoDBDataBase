@@ -26,14 +26,18 @@ def generate_fake_contacts(num_contacts):
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
+
 channel.queue_declare(queue='contacts_queue')
 
+
 fake_contacts = generate_fake_contacts(10)
+
 
 for contact in fake_contacts:
     contact_doc = Contact(**contact)
     contact_doc.save()
     message = {"contact_id": str(contact_doc.id)}
     channel.basic_publish(exchange='', routing_key='contacts_queue', body=json.dumps(message))
+
 
 connection.close()
