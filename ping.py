@@ -1,5 +1,6 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from pymongo.errors import ServerSelectionTimeoutError
 
 uri = "mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"
 
@@ -10,5 +11,7 @@ client = MongoClient(uri, server_api=ServerApi('1'))
 try:
     client.admin.command('ping')
     print("Pinged your deployment. You successfully connected to MongoDB!")
+except ServerSelectionTimeoutError:
+    print("Connection timed out. Unable to connect to MongoDB.")
 except Exception as e:
-    print(e)
+    print(f"An unexpected error occurred: {e}")
