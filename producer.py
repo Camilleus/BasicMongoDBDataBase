@@ -1,3 +1,5 @@
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 import pika
 from mongoengine import connect
 from models import Contact
@@ -5,7 +7,7 @@ import json
 import faker
 
 
-connect("your_mongodb_uri")
+connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority")
 
 
 def generate_fake_contacts(num_contacts):
@@ -41,3 +43,4 @@ for contact in fake_contacts:
 
 
 connection.close()
+

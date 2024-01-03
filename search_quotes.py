@@ -1,3 +1,5 @@
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 from mongoengine import connect
 import redis 
 from models import Author, Quote, Contact
@@ -5,7 +7,7 @@ import re
 import json
 
 
-connect("your_mongodb_uri")
+connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority")
 
 
 def search_quotes(query):

@@ -1,8 +1,10 @@
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 from mongoengine import connect
 from models import Author, Quote
 import json
 
-connect("your_mongodb_uri")
+connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority")
 
 with open("authors.json", "r") as f:
     authors_data = json.load(f)
