@@ -2,6 +2,7 @@ from mongoengine import connect
 import redis 
 from models import Author, Quote, Contact
 import re
+import json
 
 
 connect("your_mongodb_uri")
@@ -20,6 +21,7 @@ def search_quotes(query):
         quotes = Quote.objects(tags__in=tags)
     else:
         return []
+
     return quotes
 
 
@@ -33,3 +35,14 @@ while True:
             print(quote.quote)
             
             
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+
+def search_quotes_with_cache(query):
+    cached_result = redis_client.get(query)
+    if cached_result:
+        return json.loads(cached_result)
+    else:
+        result = search_quotes(query)
+        redis_client.setex(query, 300, json.dumps(result))
+        return result
