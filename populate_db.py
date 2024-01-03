@@ -9,3 +9,7 @@ with open("authors.json", "r") as f:
 
 with open("quotes.json", "r") as f:
     quotes_data = json.load(f)
+    
+for author_data in authors_data:
+    author = Author(**author_data)
+    author.save()
