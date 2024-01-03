@@ -1,46 +1,52 @@
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import pika
-from mongoengine import connect
-from models import Contact
 import json
 import logging
+from mongoengine import connect
+from models import Contact
 
 
-with connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"):
+class QueueHandler:
+    def __init__(self, connection_params, queue_name, callback_function):
+        self.connection = pika.BlockingConnection(connection_params)
+        self.channel = self.connection.channel()
+        self.queue_name = queue_name
+        self.callback_function = callback_function
+
+    def start_consuming(self):
+        self.channel.queue_declare(queue=self.queue_name)
+        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.callback_function, auto_ack=True)
+        print(' [*] Waiting for messages. To exit press CTRL+C')
+        self.channel.start_consuming()
+
+    def close_connection(self):
+        self.connection.close()
 
 
-    def send_email(contact_id):
-        contact = Contact.objects.get(id=contact_id)
-        print(f"Sending email to {contact.fullname} at {contact.email}")
-        contact.sent_email = True
-        contact.save()
+def send_email(contact_id):
+    contact = Contact.objects.get(id=contact_id)
+    print(f"Sending email to {contact.fullname} at {contact.email}")
+    contact.sent_email = True
+    contact.save()
 
 
-    logging.basicConfig(level=logging.INFO)
+def handle_message(ch, method, properties, body):
+    try:
+        message = json.loads(body)
+        contact_id = message.get("contact_id")
+        if contact_id:
+            send_email(contact_id)
+    except Exception as e:
+        logging.error(f"Error processing message: {e}")
 
-    def callback(ch, method, properties, body):
+
+if __name__ == "__main__":
+    rabbitmq_connection_params = pika.ConnectionParameters('localhost')
+    queue_handler = QueueHandler(rabbitmq_connection_params, 'contacts_queue', handle_message)
+
+    with connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"):
         try:
-            message = json.loads(body)
-            contact_id = message.get("contact_id")
-            if contact_id:
-                send_email(contact_id)
-        except Exception as e:
-            logging.error(f"Error processing message: {e}")
-
-
-
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
-
-
-    channel.queue_declare(queue='contacts_queue')
-
-
-    channel.basic_consume(queue='contacts_queue', on_message_callback=callback, auto_ack=True)
-
-
-    print(' [*] Waiting for messages. To exit press CTRL+C')
-    channel.start_consuming()
-
-    connection.close()
+            queue_handler.start_consuming()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            queue_handler.close_connection()
