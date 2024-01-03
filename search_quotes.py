@@ -1,8 +1,11 @@
 from mongoengine import connect
+import redis 
 from models import Author, Quote, Contact
 import re
 
+
 connect("your_mongodb_uri")
+
 
 def search_quotes(query):
     if query.startswith("name:"):
@@ -17,5 +20,16 @@ def search_quotes(query):
         quotes = Quote.objects(tags__in=tags)
     else:
         return []
-
     return quotes
+
+
+while True:
+    user_input = input("Your Task: ")
+    if user_input.lower() == "exit":
+        break
+    else:
+        result = search_quotes(user_input)
+        for quote in result:
+            print(quote.quote)
+            
+            
