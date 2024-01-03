@@ -1,13 +1,8 @@
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import pika
-from mongoengine import connect
-from models import Contact
 import json
 import faker
-
-
-connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority")
+from mongoengine import connect
+from models import Contact
 
 
 def generate_fake_contacts(num_contacts):
@@ -25,22 +20,23 @@ def generate_fake_contacts(num_contacts):
     return contacts
 
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel = connection.channel()
+with connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"):
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
 
 
-channel.queue_declare(queue='contacts_queue')
+    channel.queue_declare(queue='contacts_queue')
 
 
-fake_contacts = generate_fake_contacts(10)
+    fake_contacts = generate_fake_contacts(10)
 
 
-for contact in fake_contacts:
-    contact_doc = Contact(**contact)
-    contact_doc.save()
-    message = {"contact_id": str(contact_doc.id)}
-    channel.basic_publish(exchange='', routing_key='contacts_queue', body=json.dumps(message))
+    for contact in fake_contacts:
+        contact_doc = Contact(**contact)
+        contact_doc.save()
+
+        message = {"contact_id": str(contact_doc.id)}
+        channel.basic_publish(exchange='', routing_key='contacts_queue', body=json.dumps(message))
 
 
-connection.close()
-
+    connection.close()
