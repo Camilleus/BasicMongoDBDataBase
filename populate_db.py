@@ -24,7 +24,7 @@ def save_authors_and_quotes(authors_data, quotes_data):
 
 
 def main():
-    uri = "mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"
+    uri = "mongodb+srv://CamilleusRex:c47UaZGmGSlIR5PB@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"
     
     with connect(uri):
         authors_data = read_data_from_json("authors.json")

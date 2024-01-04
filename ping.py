@@ -22,6 +22,6 @@ class MongoDBConnector(DatabaseConnector):
             print(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
-    uri = "mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"
+    uri = "mongodb+srv://CamilleusRex:c47UaZGmGSlIR5PB@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"
     connector = MongoDBConnector(uri)
     connector.ping_server()
