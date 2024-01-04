@@ -4,7 +4,6 @@ import logging
 from mongoengine import connect
 from models import Contact
 
-
 class QueueHandler:
     def __init__(self, connection_params, queue_name, callback_function):
         self.connection = pika.BlockingConnection(connection_params)
@@ -21,13 +20,11 @@ class QueueHandler:
     def close_connection(self):
         self.connection.close()
 
-
 def send_email(contact_id):
     contact = Contact.objects.get(id=contact_id)
     print(f"Sending email to {contact.fullname} at {contact.email}")
     contact.sent_email = True
     contact.save()
-
 
 def handle_message(ch, method, properties, body):
     try:
@@ -37,16 +34,18 @@ def handle_message(ch, method, properties, body):
             send_email(contact_id)
     except Exception as e:
         logging.error(f"Error processing message: {e}")
-
+        logging.exception("Exception details:")
 
 if __name__ == "__main__":
     rabbitmq_connection_params = pika.ConnectionParameters('localhost')
     queue_handler = QueueHandler(rabbitmq_connection_params, 'contacts_queue', handle_message)
 
-    with connect("mongodb+srv://CamilleusRex:<c47UaZGmGSlIR5PB>@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"):
+    with connect("mongodb+srv://CamilleusRex:c47UaZGmGSlIR5PB@pythonmongodbv1cluster0.na7ldv4.mongodb.net/?retryWrites=true&w=majority"):
         try:
             queue_handler.start_consuming()
         except KeyboardInterrupt:
             pass
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}")
         finally:
             queue_handler.close_connection()
