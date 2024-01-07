@@ -8,6 +8,8 @@ def scrape_quotes():
     all_quotes = []
 
 
+    return all_quotes
+
 def save_to_json():
     pass
 
